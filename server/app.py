@@ -1,3 +1,4 @@
+# app.py
 #!/usr/bin/env python3
 
 from flask import request, session
@@ -22,6 +23,7 @@ class Signup(Resource):
         user = User(
             username=json['username']
         )
+        user.password_hash = json['password']
         db.session.add(user)
         db.session.commit()
         return UserSchema().dump(user), 201
@@ -45,7 +47,7 @@ class Login(Resource):
 
         user = User.query.filter(User.username == username).first()
 
-        if user:
+        if user and user.authenticate(password):
             session['user_id'] = user.id
             return UserSchema().dump(user), 200
 
